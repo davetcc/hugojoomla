@@ -3,6 +3,7 @@
 title = "${joomlaData.title}"
 description = "${joomlaData.introAsSingleLine}"
 tags = [ ${tags} ]
+type = "blog"
 date = "${joomlaData.createdDateAsText}"
 categories = ["${joomlaData.category}"]
 author =  "${joomlaData.author}"
