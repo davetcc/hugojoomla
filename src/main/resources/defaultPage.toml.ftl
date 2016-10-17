@@ -7,5 +7,11 @@ type = "blog"
 date = "${joomlaData.createdDateAsText}"
 categories = ["${joomlaData.category}"]
 author =  "${joomlaData.author}"
+<#if joomlaData.introImage.isImagePresent()>
+banner = "${joomlaData.introImage.url}"
+</#if>
 +++
+<#if joomlaData.bodyImage.isImagePresent() >
+    <img class="${joomlaData.bodyImage.htmlClass} titleimg" alt="${joomlaData.bodyImage.alt}" src="${joomlaData.bodyImage.url}"/>
+</#if>
 ${body}

@@ -29,7 +29,8 @@ public class JoomlaHugoConverter {
     private final NastyContentChecker nastyContentChecker;
 
     private final String SQL =  "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
-                                "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias\n" +
+                                "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
+                                "       C.images as images \n" +
                                 "from tcc_content C, tcc_users U, tcc_categories D\n" +
                                 "where C.created_by = U.id\n" +
                                 "  and D.id = C.catid\n" +
@@ -75,6 +76,7 @@ public class JoomlaHugoConverter {
         try {
             logger.info("Starting conversion of Joomla database");
 
+
             List<JoomlaContent> content = template.query(SQL, (resultSet, i) -> new JoomlaContent(
                     resultSet.getInt("id"),
                     resultSet.getString("username"),
@@ -83,7 +85,8 @@ public class JoomlaHugoConverter {
                     resultSet.getString("full"),
                     resultSet.getString("path"),
                     resultSet.getString("title"),
-                    resultSet.getString("alias")
+                    resultSet.getString("alias"),
+                    resultSet.getString("images")
             ));
 
             content.forEach(c-> {
@@ -120,13 +123,13 @@ public class JoomlaHugoConverter {
     }
 
     private String urlSorter(String body) {
-        String sqlForArticleLink = "select C.alias as alias, D.path as path\n" +
-                                    "from tcc_content C, tcc_categories D\n" +
-                                    "where C.id=? and C.catid = D.id\n";
+        String sqlForArticleLink = "SELECT C.alias AS alias, D.path AS path\n" +
+                "FROM tcc_content C, tcc_categories D\n" +
+                "WHERE C.id=? AND C.catid = D.id\n";
         Pattern linkPattern = Pattern.compile("index.php.option=com_content.amp.view=article.amp.id=([0-9]*).amp.catid=([0-9]*).amp.Itemid=([0-9]*)");
 
         boolean foundSomething = true;
-        while(foundSomething) {
+        while (foundSomething) {
             Matcher matcher = linkPattern.matcher(body);
             if (matcher.find()) {
                 int id = Integer.parseInt(matcher.group(1));
@@ -134,29 +137,10 @@ public class JoomlaHugoConverter {
                         "/" + resultSet.getString("path") + "/" + id + "-" + resultSet.getString("alias"));
                 body = body.replace(matcher.group(0), url);
                 logger.info("  Rewrote url {}", url);
-            }
-            else {
+            } else {
                 foundSomething = false;
             }
         }
         return body;
-    }
-
-    class TagInfo {
-        private final String tagName;
-        private final int contentId;
-
-        public TagInfo(String tagName, int contentId) {
-            this.tagName = tagName;
-            this.contentId = contentId;
-        }
-
-        public int getContentId() {
-            return contentId;
-        }
-
-        public String getTagName() {
-            return tagName;
-        }
     }
 }
