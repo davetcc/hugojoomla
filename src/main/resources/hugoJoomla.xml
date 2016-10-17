@@ -3,6 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
+
+
     <util:properties id="connectionProperties">
         <prop key="useUnicode">true</prop>
         <prop key="characterEncoding">UTF-8</prop>
@@ -10,13 +12,13 @@
 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://localhost:3306/tccdb" />
-        <property name="username" value="root" />
-        <property name="password" value="" />
+        <property name="url" value="#{systemProperties['db.url']}" />
+        <property name="username" value="#{systemProperties['db.user']}" />
+        <property name="password" value="#{systemProperties['db.pass']}" />
         <property name="connectionProperties" ref="connectionProperties"/>
     </bean>
 
-    <bean id="tccTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <bean id="dbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
@@ -24,8 +26,8 @@
 
     <bean id="joomlaHugoConverter" class="com.thecoderscorner.web.hugojoomla.JoomlaHugoConverter">
         <constructor-arg name="nastyContentChecker" ref="nastyContentChecker"/>
-        <constructor-arg name="template" ref="tccTemplate"/>
-        <constructor-arg name="pathToOutput" value="C:/Dev/IdeaProjects/webImages/tcc-hugo/content"/>
+        <constructor-arg name="template" ref="dbTemplate"/>
+        <constructor-arg name="pathToOutput" value="#{systemProperties['out.dir']}"/>
     </bean>
 
 
