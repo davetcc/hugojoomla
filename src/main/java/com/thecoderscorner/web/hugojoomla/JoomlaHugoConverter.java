@@ -127,6 +127,20 @@ public class JoomlaHugoConverter {
                 "FROM tcc_content C, tcc_categories D\n" +
                 "WHERE C.id=? AND C.catid = D.id\n";
         Pattern linkPattern = Pattern.compile("index.php.option=com_content.amp.view=article.amp.id=([0-9]*).amp.catid=([0-9]*).amp.Itemid=([0-9]*)");
+        Pattern imgPattern = Pattern.compile("\\<img.*?src=\"([^\"]*)\"");
+
+        // TODO this is a hack, think up a better way.
+        Matcher imgMatcher = imgPattern.matcher(body);
+        for(int i=0;i<100;i++) {
+            if(imgMatcher.find()) {
+                String imgSrc = imgMatcher.group(1);
+                if(!imgSrc.startsWith("http") && !imgSrc.startsWith("/")) {
+                    imgSrc = "/" + imgSrc;
+                    body = body.replace("src=\"" + imgMatcher.group(1) + "\"", "src=\"" + imgSrc + "\"");
+                    imgMatcher = imgPattern.matcher(body);
+                }
+            }
+        }
 
         boolean foundSomething = true;
         while (foundSomething) {
