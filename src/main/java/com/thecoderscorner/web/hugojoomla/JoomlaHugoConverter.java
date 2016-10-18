@@ -30,7 +30,7 @@ public class JoomlaHugoConverter {
 
     private final String SQL =  "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
                                 "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
-                                "       C.images as images \n" +
+                                "       C.images as images, c.state as state \n" +
                                 "from tcc_content C, tcc_users U, tcc_categories D\n" +
                                 "where C.created_by = U.id\n" +
                                 "  and D.id = C.catid\n" +
@@ -79,6 +79,7 @@ public class JoomlaHugoConverter {
 
             List<JoomlaContent> content = template.query(SQL, (resultSet, i) -> new JoomlaContent(
                     resultSet.getInt("id"),
+                    resultSet.getInt("state"),
                     resultSet.getString("username"),
                     resultSet.getDate("created").toLocalDate(),
                     resultSet.getString("intro"),
@@ -89,7 +90,7 @@ public class JoomlaHugoConverter {
                     resultSet.getString("images")
             ));
 
-            content.forEach(c-> {
+            content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
                 nastyContentChecker.checkForNastyContent(c);
                 Path path = Paths.get(pathToOutput);
                 logger.info("processing {} {}", c.getTitle(), c.getCategory());
@@ -97,6 +98,10 @@ public class JoomlaHugoConverter {
                 newPath.toFile().mkdirs();
                 buildTomlOutput(c, newPath.resolve(c.getId() + "-" + c.getAlias() + ".md"));
             });
+
+            content.stream().filter(c-> !c.isPublished()).forEach(
+                    c->logger.info("Skipping deleted content {} {}", c.getTitle(), c.getId())
+            );
 
             logger.info("Finished conversion of Joomla database");
         }
