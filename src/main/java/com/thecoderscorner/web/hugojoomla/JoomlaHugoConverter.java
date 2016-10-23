@@ -28,19 +28,16 @@ public class JoomlaHugoConverter {
     private final String pathToOutput;
     private final NastyContentChecker nastyContentChecker;
 
-    private final String SQL =  "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
-                                "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
-                                "       C.images as images, c.state as state \n" +
-                                "from tcc_content C, tcc_users U, tcc_categories D\n" +
-                                "where C.created_by = U.id\n" +
-                                "  and D.id = C.catid\n" +
-                                "  and D.path <> 'uncategorised'\n";
 
     private final Template tomlTemplate;
     private final Multimap<Integer, String> tagsByName = LinkedListMultimap.create(100);
+    private final String dbExtension;
 
     public JoomlaHugoConverter(NastyContentChecker nastyContentChecker,
-                               JdbcTemplate template, String pathToOutput) throws IOException {
+                               JdbcTemplate template, String pathToOutput, String dbExtension) throws IOException {
+
+        this.dbExtension = dbExtension;
+
         this.nastyContentChecker = nastyContentChecker;
         this.template = template;
         this.pathToOutput = pathToOutput;
@@ -58,9 +55,10 @@ public class JoomlaHugoConverter {
 
     private void buildTags() {
         String sqlTags ="select M.content_item_id as id, T.title as name\n" +
-                        " from tcc_tags T, tcc_contentitem_tag_map M\n" +
+                        " from REPLSTR_tags T, REPLSTR_contentitem_tag_map M\n" +
                         " where T.id = M.tag_id\n" +
                         "   and M.type_alias = 'com_content.article'";
+        sqlTags = sqlTags.replace("REPLSTR", dbExtension);
 
         List<TagInfo> tags = template.query(sqlTags, (resultSet, i) -> new TagInfo(
                 resultSet.getString("name"),
@@ -75,9 +73,17 @@ public class JoomlaHugoConverter {
     public void performConversion() {
         try {
             logger.info("Starting conversion of Joomla database");
+            String articleQuery =
+                    "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
+                    "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
+                    "       C.images as images, c.state as state \n" +
+                    "from REPLSTR_content C, REPLSTR_users U, REPLSTR_categories D\n" +
+                    "where C.created_by = U.id\n" +
+                    "  and D.id = C.catid\n" +
+                    "  and D.path <> 'uncategorised'\n";
+            articleQuery = articleQuery.replace("REPLSTR", dbExtension);
 
-
-            List<JoomlaContent> content = template.query(SQL, (resultSet, i) -> new JoomlaContent(
+            List<JoomlaContent> content = template.query(articleQuery, (resultSet, i) -> new JoomlaContent(
                     resultSet.getInt("id"),
                     resultSet.getInt("state"),
                     resultSet.getString("username"),
@@ -90,18 +96,13 @@ public class JoomlaHugoConverter {
                     resultSet.getString("images")
             ));
 
-            content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
-                nastyContentChecker.checkForNastyContent(c);
-                Path path = Paths.get(pathToOutput);
-                logger.info("processing {} {}", c.getTitle(), c.getCategory());
-                Path newPath = path.resolve(c.getCategory());
-                newPath.toFile().mkdirs();
-                buildTomlOutput(c, newPath.resolve(c.getId() + "-" + c.getAlias() + ".md"));
-            });
+            iterateOverContentList(content);
 
             content.stream().filter(c-> !c.isPublished()).forEach(
                     c->logger.info("Skipping deleted content {} {}", c.getTitle(), c.getId())
             );
+
+            performCategoryConversion();
 
             logger.info("Finished conversion of Joomla database");
         }
@@ -109,6 +110,37 @@ public class JoomlaHugoConverter {
             logger.error("Did not complete conversion", e);
         }
     }
+
+    private void iterateOverContentList(List<JoomlaContent> content) {
+        content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
+            nastyContentChecker.checkForNastyContent(c);
+            Path path = Paths.get(pathToOutput);
+            logger.info("processing {} {}", c.getTitle(), c.getCategory(), c.getAlias());
+            Path newPath = path.resolve(c.getCategory());
+            newPath.toFile().mkdirs();
+            buildTomlOutput(c, newPath.resolve(c.getId() + "-" + c.getAlias() + ".md"));
+        });
+    }
+
+    private void performCategoryConversion() {
+        String sqlCat = "select id, alias, title, description, path, created_time, published, description from REPLSTR_categories where length(description) > 0";
+        sqlCat = sqlCat.replace("REPLSTR", dbExtension);
+        List<JoomlaContent> content = template.query(sqlCat, (resultSet, i) -> new JoomlaContent(
+                resultSet.getInt("id"),
+                resultSet.getInt("published"),
+                "system",
+                resultSet.getDate("created_time").toLocalDate(),
+                resultSet.getString("title"),
+                resultSet.getString("description"),
+                resultSet.getString("path"),
+                resultSet.getString("title"),
+                resultSet.getString("alias") + "-category",
+                "{}"
+        ));
+        iterateOverContentList(content);
+        logger.info("Category description creation complete");
+    }
+
 
     public void buildTomlOutput(JoomlaContent content, Path resolve)  {
 
@@ -129,8 +161,10 @@ public class JoomlaHugoConverter {
 
     private String urlSorter(String body) {
         String sqlForArticleLink = "SELECT C.alias AS alias, D.path AS path\n" +
-                "FROM tcc_content C, tcc_categories D\n" +
+                "FROM REPLSTR_content C, REPLSTR_categories D\n" +
                 "WHERE C.id=? AND C.catid = D.id\n";
+        sqlForArticleLink = sqlForArticleLink.replace("REPLSTR", dbExtension);
+
         Pattern linkPattern = Pattern.compile("index.php.option=com_content.amp.view=article.amp.id=([0-9]*).amp.catid=([0-9]*).amp.Itemid=([0-9]*)");
 
         body = ensureAllImageUrlsAreCorrect(body);

@@ -28,6 +28,7 @@
         <constructor-arg name="nastyContentChecker" ref="nastyContentChecker"/>
         <constructor-arg name="template" ref="dbTemplate"/>
         <constructor-arg name="pathToOutput" value="#{systemProperties['out.dir']}"/>
+        <constructor-arg name="dbExtension" value="#{systemProperties['db.ext']}"/>
     </bean>
 
 

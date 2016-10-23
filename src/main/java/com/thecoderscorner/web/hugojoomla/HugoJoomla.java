@@ -18,6 +18,7 @@ public class HugoJoomla {
             options.addOption("dbuser", true, "the MySQL user name");
             options.addOption("dbpass", true, "the MySQL password");
             options.addOption("outdir", true, "output directory");
+            options.addOption("dbext", true, "database extension");
 
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
@@ -26,6 +27,7 @@ public class HugoJoomla {
             System.setProperty("db.pass", cmd.getOptionValue("dbpass"));
             System.setProperty("out.dir", cmd.getOptionValue("outdir", "."));
             System.setProperty("category.action", cmd.getOptionValue("cataction", "TOPONLY"));
+            System.setProperty("db.ext", cmd.getOptionValue("dbext"));
 
             ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("hugoJoomla.xml");
             ctx.getBean("joomlaHugoConverter", JoomlaHugoConverter.class).performConversion();
