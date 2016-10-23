@@ -5,9 +5,9 @@ It changes any URLs that are in Joomla internal format into joomla SEO friendly 
 links on before converting).
 
 Hugo Joomla is been tested by attempting to convert http://www.thecoderscorner.com from Joomla to Hugo. As per the hugo
-author, I found that I spent more time working around Joomla than with it. I'm now 90% of the way through converting
-over, the outstanding issues give some idea what is missing. At the moment, all articles will be ported over as the
-type "blog".
+author, I found that I spent more time working around Joomla than with it. I'm now all but complete converting
+over, what's remaining is more to do with learning Hugo than anything else. At the moment, all articles will be ported
+over as the type "blog".
 
 Designed for use with the static Hugo CMS: http://hugo.go.io
 
