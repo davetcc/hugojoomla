@@ -6,13 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JoomlaContent {
     private final static Logger LOGGER = LoggerFactory.getLogger(JoomlaContent.class);
-
     private final static Pattern HYPERLINK_PATTERN = Pattern.compile("\\<a[^\\>]*\\>([^\\<]*)\\<\\/a\\>");
+    private final static Pattern CODE_BLOCK_PATTERN  = Pattern.compile("(\\<pre\\>[^\\<]*\\<code\\>)|(\\</code\\>[^\\<]*\\</pre\\>)");
+
     private final static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
     private final int id;
     private final String author;
@@ -73,28 +73,19 @@ public class JoomlaContent {
     public String escapeIt(String s) {
         s = s.replaceAll("[\\n\\r]*", "");
         s = s.replace("\"", "\\\"");
-        return removeAllHyperlinks(s.replace("\'", "\\\""));
+        return escapeAllCode(removeAllHyperlinks(s.replace("\'", "\\\"")));
+    }
+
+    public String escapeAllCode(String s) {
+        return CODE_BLOCK_PATTERN.matcher(s).replaceAll("\n```\n");
     }
 
     public String removeAllHyperlinks(String s) {
-        boolean foundHyperlink = true;
-        while(foundHyperlink) {
-            Matcher linkMatcher = HYPERLINK_PATTERN.matcher(s);
-            if(linkMatcher.find()) {
-                String searchStr = linkMatcher.group(0);
-                String replacement = linkMatcher.group(1);
-                s = s.replace(searchStr, replacement);
-                LOGGER.info("Hyperlink removal in introduction for " + searchStr);
-            }
-            else {
-                foundHyperlink = false;
-            }
-        }
-        return s;
+        return HYPERLINK_PATTERN.matcher(s).replaceAll("\\1");
     }
 
     public String getBody() {
-        return body;
+        return escapeAllCode(body);
     }
 
     public String getCategory() {

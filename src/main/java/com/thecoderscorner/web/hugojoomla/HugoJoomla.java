@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.Properties;
-
 public class HugoJoomla {
     private final static Logger LOGGER = LoggerFactory.getLogger(HugoJoomla.class);
 
@@ -27,6 +25,7 @@ public class HugoJoomla {
             System.setProperty("db.user", cmd.getOptionValue("dbuser"));
             System.setProperty("db.pass", cmd.getOptionValue("dbpass"));
             System.setProperty("out.dir", cmd.getOptionValue("outdir", "."));
+            System.setProperty("category.action", cmd.getOptionValue("cataction", "TOPONLY"));
 
             ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("hugoJoomla.xml");
             ctx.getBean("joomlaHugoConverter", JoomlaHugoConverter.class).performConversion();
