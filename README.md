@@ -1,13 +1,15 @@
 # Hugo to Joomla conversion tool.
 
-This utility takes a joomla database and converts all the content into md markup files in the TOML format. It changes
-any URLs that are in Joomla internal format into joomla SEO friendly format (assuming you had SEO friendly links
-on before converting).
+Converts a joomla database into a series of md markup files in the TOML format suitable for use in Hugo content manager.
+It changes any URLs that are in Joomla internal format into joomla SEO friendly format (assuming you had SEO friendly
+links on before converting).
 
 Hugo Joomla is been tested by attempting to convert http://www.thecoderscorner.com from Joomla to Hugo. As per the hugo
 author, I found that I spent more time working around Joomla than with it. I'm now 90% of the way through converting
 over, the outstanding issues give some idea what is missing. At the moment, all articles will be ported over as the
 type "blog".
+
+Designed for use with the static Hugo CMS: http://hugo.go.io
 
 In order to use this utility you will need to move any statically served content (images, media, etc) into the Hugo static directory.
 Check carefully there are no compromised PHP files in that structure before copying! Better still turn off all
