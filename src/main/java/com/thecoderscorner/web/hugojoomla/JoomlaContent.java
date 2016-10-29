@@ -23,12 +23,13 @@ public class JoomlaContent {
     private final String title;
     private final String alias;
     private final int status;
+    private final String parent;
     private JoomlaImage introImage = JoomlaImage.EMPTY;
     private JoomlaImage bodyImage = JoomlaImage.EMPTY;
 
     public JoomlaContent(int id, int status, String author, LocalDate createdDate, String intro,
                          String body, String category, String title, String alias,
-                         String images) {
+                         String images, String parent) {
         this.id = id;
         this.status = status;
         this.author = author;
@@ -38,6 +39,7 @@ public class JoomlaContent {
         this.category = category;
         this.title = title;
         this.alias = alias;
+        this.parent = parent;
         try {
             introImage = new JoomlaImage("intro", images);
             bodyImage = new JoomlaImage("fulltext", images);
@@ -106,5 +108,9 @@ public class JoomlaContent {
 
     public boolean isPublished() {
         return status == 0 || status == 1;
+    }
+
+    public String getParent() {
+        return parent;
     }
 }

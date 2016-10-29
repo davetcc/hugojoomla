@@ -29,7 +29,8 @@ public class JoomlaHugoConverter {
     private final NastyContentChecker nastyContentChecker;
 
 
-    private final Template tomlTemplate;
+    private final Template contentTemplate;
+    private final Template categoryTemplate;
     private final Multimap<Integer, String> tagsByName = LinkedListMultimap.create(100);
     private final String dbExtension;
 
@@ -48,7 +49,8 @@ public class JoomlaHugoConverter {
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         cfg.setLogTemplateExceptions(false);
 
-        tomlTemplate = cfg.getTemplate("defaultPage.toml.ftl");
+        categoryTemplate = cfg.getTemplate("categoryPage.toml.ftl");
+        contentTemplate = cfg.getTemplate("defaultPage.toml.ftl");
 
         buildTags();
     }
@@ -76,7 +78,7 @@ public class JoomlaHugoConverter {
             String articleQuery =
                     "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
                     "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
-                    "       C.images as images, c.state as state \n" +
+                    "       C.images as images, c.state as state, D.alias as catAlias \n" +
                     "from REPLSTR_content C, REPLSTR_users U, REPLSTR_categories D\n" +
                     "where C.created_by = U.id\n" +
                     "  and D.id = C.catid\n" +
@@ -93,10 +95,18 @@ public class JoomlaHugoConverter {
                     resultSet.getString("path"),
                     resultSet.getString("title"),
                     resultSet.getString("alias"),
-                    resultSet.getString("images")
+                    resultSet.getString("images"),
+                    resultSet.getString("catAlias")
             ));
 
-            iterateOverContentList(content);
+            content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
+                nastyContentChecker.checkForNastyContent(c);
+                Path path = Paths.get(pathToOutput);
+                logger.info("processing {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
+                Path newPath = path.resolve(c.getCategory());
+                newPath.toFile().mkdirs();
+                buildTomlOutput(c, newPath.resolve(c.getId() + "-" + c.getAlias() + ".md"), contentTemplate);
+            });
 
             content.stream().filter(c-> !c.isPublished()).forEach(
                     c->logger.info("Skipping deleted content {} {}", c.getTitle(), c.getId())
@@ -111,19 +121,13 @@ public class JoomlaHugoConverter {
         }
     }
 
-    private void iterateOverContentList(List<JoomlaContent> content) {
-        content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
-            nastyContentChecker.checkForNastyContent(c);
-            Path path = Paths.get(pathToOutput);
-            logger.info("processing {} {}", c.getTitle(), c.getCategory(), c.getAlias());
-            Path newPath = path.resolve(c.getCategory());
-            newPath.toFile().mkdirs();
-            buildTomlOutput(c, newPath.resolve(c.getId() + "-" + c.getAlias() + ".md"));
-        });
-    }
-
     private void performCategoryConversion() {
-        String sqlCat = "select id, alias, title, description, path, created_time, published, description from REPLSTR_categories where length(description) > 0";
+        String sqlCat =
+                "SELECT C.id AS id, C.alias AS alias, C.description AS description, C.path AS path,\n" +
+                "       C.created_time AS created_time, C.published AS published, C.description description, C.title AS title,\n" +
+                "       P.alias AS parent\n" +
+                "FROM REPLSTR_categories C, REPLSTR_categories P\n" +
+                "WHERE C.parent_id = P.id\n";
         sqlCat = sqlCat.replace("REPLSTR", dbExtension);
         List<JoomlaContent> content = template.query(sqlCat, (resultSet, i) -> new JoomlaContent(
                 resultSet.getInt("id"),
@@ -132,17 +136,27 @@ public class JoomlaHugoConverter {
                 resultSet.getDate("created_time").toLocalDate(),
                 resultSet.getString("title"),
                 resultSet.getString("description"),
-                resultSet.getString("path"),
+                resultSet.getString("parent"),
                 resultSet.getString("title"),
-                resultSet.getString("alias") + "-category",
-                "{}"
+                resultSet.getString("alias"),
+                "{}",
+                resultSet.getString("path")
+
         ));
-        iterateOverContentList(content);
+
+        content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
+            nastyContentChecker.checkForNastyContent(c);
+            Path path = Paths.get(pathToOutput);
+            logger.info("processing category {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
+            Path newPath = path.resolve(c.getParent() + ".md");
+            buildTomlOutput(c, newPath, categoryTemplate);
+        });
+
         logger.info("Category description creation complete");
     }
 
 
-    public void buildTomlOutput(JoomlaContent content, Path resolve)  {
+    public void buildTomlOutput(JoomlaContent content, Path resolve, Template template)  {
 
         try {
             String tagsQuoted = tagsByName.get(content.getId()).stream()
@@ -153,7 +167,7 @@ public class JoomlaHugoConverter {
             root.put("joomlaData", content);
             root.put("tags", tagsQuoted);
             root.put("body", urlSorter(content.getIntro() + "\n" + content.getBody()));
-            tomlTemplate.process(root, new BufferedWriter(new FileWriter(resolve.toFile())));
+            template.process(root, new BufferedWriter(new FileWriter(resolve.toFile())));
         } catch (Exception e) {
             logger.error("Failed to generate file", e);
         }
