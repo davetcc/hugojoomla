@@ -4,10 +4,9 @@ Converts a joomla database into a series of md markup files in the TOML format s
 It changes any URLs that are in Joomla internal format into joomla SEO friendly format (assuming you had SEO friendly
 links on before converting).
 
-Hugo Joomla is been tested by attempting to convert http://www.thecoderscorner.com from Joomla to Hugo. As per the hugo
-author, I found that I spent more time working around Joomla than with it. I'm now all but complete converting
-over, what's remaining is more to do with learning Hugo than anything else. At the moment, all articles will be ported
-over as the type "blog".
+Hugo Joomla is been tested by converting http://www.thecoderscorner.com from Joomla to Hugo. As per the hugo
+author, I found that I spent more time working around Joomla than with it. There are a couple of outstanding issues
+but overall it's at about the same level as before.
 
 Designed for use with the static Hugo CMS: http://hugo.go.io
 
@@ -19,6 +18,8 @@ At the moment this project always converts all nested categories into menus in t
 at this site (https://github.com/vjeantet/hugo-menu-show) . You'll potentially need to alter your template along similar
 lines to that site if you have nested categories. If you did not have nested categories then a new version with an option
 that flattens out categories, to create a single level site will soon be available.
+
+In addition all content is currently converted as type "blog".
 
 ## Running the conversion utility
 
