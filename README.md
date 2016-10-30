@@ -43,8 +43,7 @@ Either way change to the application directory and run as follows:
 
     java -jar .\hugo-joomla-0.1-SNAPSHOT.jar -dburl <url> -dbuser <user> -dbpass <password> -outdir <dir> -dbext <prefix>
 
-WARNING: !!this process will overwrite all existing files with the same names. Ensure you have a backup before running!!
-If you take the binary package, just navigate to the directory and type:
+** WARNING: !!this process will overwrite all existing files with the same names. Ensure you have a backup before running!!**
 
 
 Where
