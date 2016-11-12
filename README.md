@@ -1,4 +1,4 @@
-# Hugo to Joomla conversion tool.
+# Joomla to Hugo conversion tool.
 
 Converts a joomla database into a series of md markup files in the TOML format suitable for use in Hugo content manager.
 It changes any URLs that are in Joomla internal format into joomla SEO friendly format (assuming you had SEO friendly
