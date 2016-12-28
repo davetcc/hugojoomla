@@ -32,15 +32,10 @@ The above command should return something like:
     java version "1.8.0_102"
     Java(TM) SE Runtime Environment (build 1.8.0_102-b14)
 
-You can use the packaged version that is available from the releases page. Building from source is not required.
-Should you wish to build from source, you will need apache maven, any recent version should be good enough.
-Ensure the maven bin directory is on your path. At this point in the project top level directory type:
+You can use the packaged version that is available from the releases page. 
+[releases page](https://github.com/davetcc/hugojoomla/releases)
 
-    mvn install
-
-Once this is complete there will be a target directory, and in there will be a jar file.
-
-Either way change to the application directory and run as follows:
+Change into the application directory and run the command as follows:
 
     java -jar .\hugo-joomla-0.1-SNAPSHOT.jar -dburl <url> -dbuser <user> -dbpass <password> -outdir <dir> -dbext <prefix>
 
@@ -56,4 +51,10 @@ Where
 
 ## Building from source
 
-Pull down this git repo and run the install task. The jar will be in the target directory
+Pull down the master branch from this github project in order to start.
+You will also need apache maven, any recent version should be good enough.
+Ensure the maven bin directory is on your path. At this point in the project top level directory type:
+
+    mvn install
+
+Once this is complete there will be a target directory, and in there will be a jar file.
