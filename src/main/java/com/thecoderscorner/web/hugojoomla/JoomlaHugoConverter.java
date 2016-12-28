@@ -78,7 +78,7 @@ public class JoomlaHugoConverter {
             String articleQuery =
                     "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
                     "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
-                    "       C.images as images, c.state as state, D.alias as catAlias \n" +
+                    "       C.images as images, C.state as state, D.alias as catAlias \n" +
                     "from REPLSTR_content C, REPLSTR_users U, REPLSTR_categories D\n" +
                     "where C.created_by = U.id\n" +
                     "  and D.id = C.catid\n" +
