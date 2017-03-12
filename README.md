@@ -7,10 +7,9 @@ This conversion utility will change any URLs that are in Joomla internal format 
 (assuming you had SEO friendly links on before converting). If you did not have SEO friendly links turned on, your 
 conversion will not be automatic, as you will have to map all the Joomla URLS.
 
-Hugo Joomla is been tested by converting an older Joomla 3 site I had from Joomla to Hugo. As per the hugo
-author, I found that I spent more time working around Joomla than with it. With the latest release, I believe it should
-be fully functional for most people. My blog [http://www.thecoderscorner.com] is an example of a site converted with this
-utility.
+Hugo Joomla is tested by converting an older Joomla 3 site I had from Joomla to Hugo.  With the latest release, 
+I believe it should be fully functional for most people. My blog [http://www.thecoderscorner.com] is an example of a 
+site converted with this utility.
 
 
 There is a more detailed article on my website that may be helpful before starting:
