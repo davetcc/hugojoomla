@@ -26,6 +26,7 @@ public class JoomlaHugoConverter {
 
     private final JdbcTemplate template;
     private final String pathToOutput;
+    private boolean buildTags;
     private final NastyContentChecker nastyContentChecker;
 
 
@@ -35,13 +36,15 @@ public class JoomlaHugoConverter {
     private final String dbExtension;
 
     public JoomlaHugoConverter(NastyContentChecker nastyContentChecker,
-                               JdbcTemplate template, String pathToOutput, String dbExtension) throws IOException {
+                               JdbcTemplate template, String pathToOutput, String dbExtension,
+                               boolean buildTags) throws IOException {
 
         this.dbExtension = dbExtension;
 
         this.nastyContentChecker = nastyContentChecker;
         this.template = template;
         this.pathToOutput = pathToOutput;
+        this.buildTags = buildTags;
 
         Configuration cfg = new Configuration(Configuration.getVersion());
         cfg.setClassLoaderForTemplateLoading(ClassLoader.getSystemClassLoader(), "/");
@@ -56,6 +59,11 @@ public class JoomlaHugoConverter {
     }
 
     private void buildTags() {
+        if( ! buildTags) {
+            logger.warn("Tag processing turned off, not processing any tags");
+            return;
+        }
+
         String sqlTags ="select M.content_item_id as id, T.title as name\n" +
                         " from REPLSTR_tags T, REPLSTR_contentitem_tag_map M\n" +
                         " where T.id = M.tag_id\n" +

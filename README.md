@@ -1,23 +1,31 @@
 # Joomla to Hugo conversion tool.
 
-Converts a joomla database into a series of md markup files in the TOML format suitable for use in Hugo content manager.
-It changes any URLs that are in Joomla internal format into joomla SEO friendly format (assuming you had SEO friendly
-links on before converting).
+Converts a joomla database into a series of md markup files in the TOML format suitable for use in Hugo content manager
+[http://hugo.go.io]
 
-Hugo Joomla is been tested by converting http://www.thecoderscorner.com from Joomla to Hugo. As per the hugo
-author, I found that I spent more time working around Joomla than with it. There are a couple of outstanding issues
-but overall it's at about the same level as before.
+This conversion utility will change any URLs that are in Joomla internal format into joomla SEO friendly format
+(assuming you had SEO friendly links on before converting). If you did not have SEO friendly links turned on, your 
+conversion will not be automatic, as you will have to map all the Joomla URLS.
 
-Designed for use with the static Hugo CMS: http://hugo.go.io
+Hugo Joomla is been tested by converting an older Joomla 3 site I had from Joomla to Hugo. As per the hugo
+author, I found that I spent more time working around Joomla than with it. With the latest release, I believe it should
+be fully functional for most people. My blog [http://www.thecoderscorner.com] is an example of a site converted with this
+utility.
 
-In order to use this utility you will need to move any statically served content (images, media, etc) into the Hugo static directory.
-Check carefully there are no compromised PHP files in that structure before copying! Better still turn off all
-scripting in that location.
 
-At the moment this project always converts all nested categories into menus in the front matter, based on an example
-at this site (https://github.com/vjeantet/hugo-menu-show) . You'll potentially need to alter your template along similar
-lines to that site if you have nested categories. If you did not have nested categories then a new version with an option
-that flattens out categories, to create a single level site will soon be available.
+There is a more detailed article on my website that may be helpful before starting:
+[http://www.thecoderscorner.com/team-blog/joomla-cms/moving-to-hugo-from-joomla/].
+
+In order to use this utility you will need to move any statically served content (images, media, etc) into the Hugo 
+static directory before proceeding, keep the same directory structure as you had on Joomla. At this point I recommend
+that you check carefully there are no compromised PHP files in that structure before copying!
+
+At the moment this project always converts all nested categories into menus in the front matter, there are examples of
+this both on the Hugo site [https://gohugo.io/extras/menus/] and also there is an example at this site 
+(https://github.com/vjeantet/hugo-menu-show). 
+
+If you used nested categories, you'll probably have to make changes to the template to support it. Otherwise, you probably
+just need to remove the reference to the root category in the top level categories and away you go!
 
 In addition all content is currently converted as type "blog".
 
@@ -48,6 +56,7 @@ Where
  * dbpass is the password for the user
  * outdir optional, defaults to current dir. Where to write the content files.
  * dbext the extension used for joomla tables in the db. Eg: tcc would be tcc_tablename
+ * buildtags optional, defaults to true. Turn on or off processing of tags.
 
 ## Building from source
 

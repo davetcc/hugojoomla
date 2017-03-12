@@ -29,6 +29,7 @@
         <constructor-arg name="template" ref="dbTemplate"/>
         <constructor-arg name="pathToOutput" value="#{systemProperties['out.dir']}"/>
         <constructor-arg name="dbExtension" value="#{systemProperties['db.ext']}"/>
+        <constructor-arg name="buildTags" value="#{systemProperties['buildtags']}"/>
     </bean>
 
 

@@ -9,9 +9,7 @@ author =  "${joomlaData.author}"
 <#if joomlaData.introImage.isImagePresent()>
 banner = "${joomlaData.introImage.url}"
 </#if>
-[menu.main]
-name = "${joomlaData.title}"
-parent = "${joomlaData.parent}"
+menu = "${joomlaData.parent}"
 +++
 <#if joomlaData.bodyImage.isImagePresent() >
     <img class="${joomlaData.bodyImage.htmlClass} titleimg" alt="${joomlaData.bodyImage.alt}" src="${joomlaData.bodyImage.url}"/>
