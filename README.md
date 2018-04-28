@@ -8,12 +8,12 @@ This conversion utility will change any URLs that are in Joomla internal format 
 conversion will not be automatic, as you will have to map all the Joomla URLS.
 
 Hugo Joomla is tested by converting an older Joomla 3 site I had from Joomla to Hugo.  With the latest release, 
-I believe it should be fully functional for most people. My blog [http://www.thecoderscorner.com] is an example of a 
+I believe it should be fully functional for most people. My blog [https://www.thecoderscorner.com] is an example of a 
 site converted with this utility.
 
 
 There is a more detailed article on my website that may be helpful before starting:
-[http://www.thecoderscorner.com/team-blog/joomla-cms/moving-to-hugo-from-joomla/].
+[https://www.thecoderscorner.com/team-blog/joomla-cms/moving-to-hugo-from-joomla/].
 
 In order to use this utility you will need to move any statically served content (images, media, etc) into the Hugo 
 static directory before proceeding, keep the same directory structure as you had on Joomla. At this point I recommend
