@@ -44,7 +44,7 @@ public class JoomlaContent {
             introImage = new JoomlaImage("intro", images);
             bodyImage = new JoomlaImage("fulltext", images);
         } catch (ParseException e) {
-            LOGGER.warn("Images for " + id +" not processed",e);
+            LOGGER.warn("Images for " + id +" not processed. Error from JSON Parser was " + e.getLocalizedMessage());
         }
     }
 
