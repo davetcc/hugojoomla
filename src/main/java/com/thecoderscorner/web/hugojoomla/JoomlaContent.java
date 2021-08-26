@@ -17,27 +17,31 @@ public class JoomlaContent {
     private final int id;
     private final String author;
     private final LocalDate createdDate;
+    private final LocalDate modifiedDate;
     private final String intro;
     private final String body;
     private final String category;
     private final String title;
+    private final String metadesc;
     private final String alias;
     private final int status;
     private final String parent;
     private JoomlaImage introImage = JoomlaImage.EMPTY;
     private JoomlaImage bodyImage = JoomlaImage.EMPTY;
 
-    public JoomlaContent(int id, int status, String author, LocalDate createdDate, String intro,
-                         String body, String category, String title, String alias,
+    public JoomlaContent(int id, int status, String author, LocalDate createdDate, LocalDate modifiedDate, String intro,
+                         String body, String category, String title, String metadesc, String alias,
                          String images, String parent) {
         this.id = id;
         this.status = status;
         this.author = author;
         this.createdDate = createdDate;
+        this.modifiedDate = modifiedDate;
         this.intro = intro;
         this.body = body;
         this.category = category;
         this.title = title;
+        this.metadesc = metadesc;
         this.alias = alias;
         this.parent = parent;
         try {
@@ -62,6 +66,10 @@ public class JoomlaContent {
 
     public String getCreatedDateAsText() {
         return formatter.format(createdDate);
+    }
+
+    public String getModifiedDateAsText() {
+        return formatter.format(modifiedDate);
     }
 
     public String getIntro() {
@@ -96,6 +104,10 @@ public class JoomlaContent {
 
     public String getTitle() {
         return escapeIt(title);
+    }
+
+    public String getMetadesc() {
+        return escapeIt(metadesc);
     }
 
     public JoomlaImage getIntroImage() {

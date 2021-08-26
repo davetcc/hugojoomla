@@ -8,10 +8,10 @@ showChildren: true
 type: "category"
 
 menu:
-    main:
-        name: "${joomlaData.title}"
-        identifier: "${joomlaData.alias}"
-        parent: "${joomlaData.category}"
+  main:
+    name: "${joomlaData.title}"
+    identifier: "${joomlaData.alias}"
+    parent: "${joomlaData.category}"
 ---
 
 ${body}

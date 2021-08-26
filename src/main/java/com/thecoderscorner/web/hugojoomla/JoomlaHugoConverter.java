@@ -52,8 +52,8 @@ public class JoomlaHugoConverter {
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         cfg.setLogTemplateExceptions(false);
 
-        categoryTemplate = cfg.getTemplate("categoryPage.toml.ftl");
-        contentTemplate = cfg.getTemplate("defaultPage.toml.ftl");
+        categoryTemplate = cfg.getTemplate("categoryPage.yaml.ftl");
+        contentTemplate = cfg.getTemplate("defaultPage.yaml.ftl");
 
         buildTags();
     }
@@ -84,9 +84,9 @@ public class JoomlaHugoConverter {
         try {
             logger.info("Starting conversion of Joomla database");
             String articleQuery =
-                    "select C.id as id, U.username as username, C.created as created, C.introtext as intro, " +
+                    "select C.id as id, U.username as username, C.created as created, C.modified as modified, C.introtext as intro, " +
                     "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
-                    "       C.images as images, C.state as state, D.alias as catAlias \n" +
+                    "       C.metadesc as metadesc, C.images as images, C.state as state, D.alias as catAlias \n" +
                     "from REPLSTR_content C, REPLSTR_users U, REPLSTR_categories D\n" +
                     "where C.created_by = U.id\n" +
                     "  and D.id = C.catid\n" +
@@ -98,10 +98,12 @@ public class JoomlaHugoConverter {
                     resultSet.getInt("state"),
                     resultSet.getString("username"),
                     resultSet.getDate("created").toLocalDate(),
+                    resultSet.getDate("modified").toLocalDate(),
                     resultSet.getString("intro"),
                     resultSet.getString("full"),
                     resultSet.getString("path"),
                     resultSet.getString("title"),
+                    resultSet.getString("metadesc"),
                     resultSet.getString("alias"),
                     resultSet.getString("images"),
                     resultSet.getString("catAlias")
@@ -113,7 +115,7 @@ public class JoomlaHugoConverter {
                 logger.info("processing {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
                 Path newPath = path.resolve(c.getCategory());
                 newPath.toFile().mkdirs();
-                buildTomlOutput(c, newPath.resolve(c.getId() + "-" + c.getAlias() + ".md"), contentTemplate);
+                buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), contentTemplate);
             });
 
             content.stream().filter(c-> !c.isPublished()).forEach(
@@ -132,8 +134,8 @@ public class JoomlaHugoConverter {
     private void performCategoryConversion() {
         String sqlCat =
                 "SELECT C.id AS id, C.alias AS alias, C.description AS description, C.path AS path,\n" +
-                "       C.created_time AS created_time, C.published AS published, C.description description, C.title AS title,\n" +
-                "       P.alias AS parent\n" +
+                "       C.created_time AS created_time, C.modified_time AS modified_time, C.published AS published, C.description description, C.title AS title,\n" +
+                "       C.metadesc AS metadesc, P.alias AS parent\n" +
                 "FROM REPLSTR_categories C, REPLSTR_categories P\n" +
                 "WHERE C.parent_id = P.id\n";
         sqlCat = sqlCat.replace("REPLSTR", dbExtension);
@@ -142,10 +144,12 @@ public class JoomlaHugoConverter {
                 resultSet.getInt("published"),
                 "system",
                 resultSet.getDate("created_time").toLocalDate(),
+                resultSet.getDate("created_time").toLocalDate(),
                 resultSet.getString("title"),
                 resultSet.getString("description"),
                 resultSet.getString("parent"),
                 resultSet.getString("title"),
+                resultSet.getString("metadesc"),
                 resultSet.getString("alias"),
                 "{}",
                 resultSet.getString("path")
