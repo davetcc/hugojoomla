@@ -66,3 +66,9 @@ Ensure the maven bin directory is on your path. At this point in the project top
     mvn install
 
 Once this is complete there will be a target directory, and in there will be a jar file.
+
+## Deveopers and notes on contributing
+
+Please raise a PR with the change. Check https://github.com/joomlaext/hugojoomla/actions/runs/1177286827 for CI pipeline result before merging ;-)
+
+For particularly large scale changes, it's best to raise an issue first.
