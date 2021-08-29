@@ -8,6 +8,10 @@ import freemarker.template.TemplateExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import io.github.furstenheim.CopyDown;
+import io.github.furstenheim.Options;
+import io.github.furstenheim.OptionsBuilder;
+import io.github.furstenheim.HeadingStyle;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -93,14 +97,18 @@ public class JoomlaHugoConverter {
                     "  and D.path <> 'uncategorised'\n";
             articleQuery = articleQuery.replace("REPLSTR", dbExtension);
 
+            OptionsBuilder htmlToMarkdownOptionsBuilder = OptionsBuilder.anOptions();
+            Options htmlToMarkdownOptions = htmlToMarkdownOptionsBuilder.withHeadingStyle(HeadingStyle.ATX).build();
+            CopyDown htmtToMarkdownConverter = new CopyDown(htmlToMarkdownOptions);
+
             List<JoomlaContent> content = template.query(articleQuery, (resultSet, i) -> new JoomlaContent(
                     resultSet.getInt("id"),
                     resultSet.getInt("state"),
                     resultSet.getString("username"),
                     resultSet.getDate("created").toLocalDate(),
                     resultSet.getDate("modified").toLocalDate(),
-                    resultSet.getString("intro"),
-                    resultSet.getString("full"),
+                    htmtToMarkdownConverter.convert(resultSet.getString("intro")),
+                    htmtToMarkdownConverter.convert(resultSet.getString("full")),
                     resultSet.getString("path"),
                     resultSet.getString("title"),
                     resultSet.getString("metadesc"),

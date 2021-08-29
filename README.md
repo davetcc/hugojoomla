@@ -7,6 +7,8 @@ This conversion utility will change any URLs that are in Joomla internal format 
 (assuming you had SEO friendly links on before converting). If you did not have SEO friendly links turned on, your 
 conversion will not be automatic, as you will have to map all the Joomla URLS.
 
+HTML Joomla articles are converted to markdown with the https://github.com/furstenheim/copy-down to ensure compatibility with hugo > 6.0 which is not rendering HTML content by default anymore.
+
 Hugo Joomla is tested by converting an older Joomla 3 site I had from Joomla to Hugo.  With the latest release, 
 I believe it should be fully functional for most people. My blog [https://www.thecoderscorner.com] is an example of a 
 site converted with this utility.
