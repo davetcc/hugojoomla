@@ -40,6 +40,7 @@ public class JoomlaHugoConverter {
 
     private final Template contentTemplate;
     private final Template categoryTemplate;
+    private final Template customHtmlModuleTemplate;
     private final Multimap<Integer, String> tagsByName = LinkedListMultimap.create(100);
     private final String dbExtension;
 
@@ -63,6 +64,7 @@ public class JoomlaHugoConverter {
 
         categoryTemplate = cfg.getTemplate("categoryPage.yaml.ftl");
         contentTemplate = cfg.getTemplate("defaultPage.yaml.ftl");
+        customHtmlModuleTemplate = cfg.getTemplate("customHtmlModule.yaml.ftl");
 
         buildTags();
     }
@@ -132,6 +134,7 @@ public class JoomlaHugoConverter {
             );
 
             performCategoryConversion();
+            performCustomHtmlModulesConversion();
 
             logger.info("Finished conversion of Joomla database");
         }
@@ -176,6 +179,42 @@ public class JoomlaHugoConverter {
         logger.info("Category description creation complete");
     }
 
+
+    private void performCustomHtmlModulesConversion() {
+        String sqlCustomHtmlModules =
+                "SELECT id, title, content, position, publish_up AS created_time, published\n" +
+                "FROM REPLSTR_modules\n" +
+                "WHERE module = \'mod_custom\'\n";
+        sqlCustomHtmlModules = sqlCustomHtmlModules.replace("REPLSTR", dbExtension);
+        List<JoomlaContent> content = template.query(sqlCustomHtmlModules, (resultSet, i) -> new JoomlaContent(
+                resultSet.getInt("id"),
+                resultSet.getInt("published"),
+                null,
+                null,
+                null,
+                "",
+                resultSet.getString("content"),
+                "customHtmlModules",
+                resultSet.getString("title"),
+                "",
+                resultSet.getString("title"),
+                "{}",
+                null
+        ));
+
+        content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
+            nastyContentChecker.checkForNastyContent(c);
+            Path path = Paths.get(pathToOutput);
+            logger.info("processing custom HTML module {}", c.getTitle());
+            Path newPath = path.resolve(c.getCategory());
+            newPath.toFile().mkdirs();
+            buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), customHtmlModuleTemplate, false);
+
+            
+        });
+
+        logger.info("Custom HTML modules creation complete");
+    }
 
     public void buildTomlOutput(JoomlaContent content, Path resolve, Template template, Boolean convertBodyToMarkdown)  {
 
