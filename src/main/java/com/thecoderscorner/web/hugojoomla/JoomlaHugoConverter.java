@@ -12,6 +12,7 @@ import io.github.furstenheim.CopyDown;
 import io.github.furstenheim.Options;
 import io.github.furstenheim.OptionsBuilder;
 import io.github.furstenheim.HeadingStyle;
+import io.github.furstenheim.CodeBlockStyle;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -98,7 +99,7 @@ public class JoomlaHugoConverter {
             articleQuery = articleQuery.replace("REPLSTR", dbExtension);
 
             OptionsBuilder htmlToMarkdownOptionsBuilder = OptionsBuilder.anOptions();
-            Options htmlToMarkdownOptions = htmlToMarkdownOptionsBuilder.withHeadingStyle(HeadingStyle.ATX).build();
+            Options htmlToMarkdownOptions = htmlToMarkdownOptionsBuilder.withHeadingStyle(HeadingStyle.ATX).withCodeBlockStyle(CodeBlockStyle.FENCED).build();
             CopyDown htmtToMarkdownConverter = new CopyDown(htmlToMarkdownOptions);
 
             List<JoomlaContent> content = template.query(articleQuery, (resultSet, i) -> new JoomlaContent(
