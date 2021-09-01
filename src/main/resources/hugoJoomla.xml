@@ -30,6 +30,7 @@
         <constructor-arg name="pathToOutput" value="#{systemProperties['out.dir']}"/>
         <constructor-arg name="dbExtension" value="#{systemProperties['db.ext']}"/>
         <constructor-arg name="buildTags" value="#{systemProperties['buildtags']}"/>
+        <constructor-arg name="htmltomarkdown" value="#{systemProperties['htmltomarkdown']}"/>
     </bean>
 
 

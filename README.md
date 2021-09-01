@@ -58,6 +58,7 @@ Where
  * outdir optional, defaults to current dir. Where to write the content files.
  * dbext the extension used for joomla tables in the db. Eg: tcc would be tcc_tablename
  * buildtags optional, defaults to true. Turn on or off processing of tags.
+ * htmltomarkdown optional, defaults to true. Turn on or off HTML article content conversion to markdown.
 
 ## Building from source
 

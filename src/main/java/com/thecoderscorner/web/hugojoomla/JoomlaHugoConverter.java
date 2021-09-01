@@ -32,6 +32,7 @@ public class JoomlaHugoConverter {
     private final JdbcTemplate template;
     private final String pathToOutput;
     private boolean buildTags;
+    private boolean htmltomarkdown;
     private final NastyContentChecker nastyContentChecker;
 
 
@@ -42,7 +43,7 @@ public class JoomlaHugoConverter {
 
     public JoomlaHugoConverter(NastyContentChecker nastyContentChecker,
                                JdbcTemplate template, String pathToOutput, String dbExtension,
-                               boolean buildTags) throws IOException {
+                               boolean buildTags, boolean htmltomarkdown) throws IOException {
 
         this.dbExtension = dbExtension;
 
@@ -50,6 +51,7 @@ public class JoomlaHugoConverter {
         this.template = template;
         this.pathToOutput = pathToOutput;
         this.buildTags = buildTags;
+        this.htmltomarkdown = htmltomarkdown;
 
         Configuration cfg = new Configuration(Configuration.getVersion());
         cfg.setClassLoaderForTemplateLoading(ClassLoader.getSystemClassLoader(), "/");
@@ -98,18 +100,14 @@ public class JoomlaHugoConverter {
                     "  and D.path <> 'uncategorised'\n";
             articleQuery = articleQuery.replace("REPLSTR", dbExtension);
 
-            OptionsBuilder htmlToMarkdownOptionsBuilder = OptionsBuilder.anOptions();
-            Options htmlToMarkdownOptions = htmlToMarkdownOptionsBuilder.withHeadingStyle(HeadingStyle.ATX).withCodeBlockStyle(CodeBlockStyle.FENCED).build();
-            CopyDown htmtToMarkdownConverter = new CopyDown(htmlToMarkdownOptions);
-
             List<JoomlaContent> content = template.query(articleQuery, (resultSet, i) -> new JoomlaContent(
                     resultSet.getInt("id"),
                     resultSet.getInt("state"),
                     resultSet.getString("username"),
                     resultSet.getDate("created").toLocalDate(),
                     resultSet.getDate("modified").toLocalDate(),
-                    htmtToMarkdownConverter.convert(resultSet.getString("intro")),
-                    htmtToMarkdownConverter.convert(resultSet.getString("full")),
+                    resultSet.getString("intro"),
+                    resultSet.getString("full"),
                     resultSet.getString("path"),
                     resultSet.getString("title"),
                     resultSet.getString("metadesc"),
@@ -124,7 +122,7 @@ public class JoomlaHugoConverter {
                 logger.info("processing {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
                 Path newPath = path.resolve(c.getCategory());
                 newPath.toFile().mkdirs();
-                buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), contentTemplate);
+                buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), this.contentTemplate, this.htmltomarkdown);
             });
 
             content.stream().filter(c-> !c.isPublished()).forEach(
@@ -170,24 +168,34 @@ public class JoomlaHugoConverter {
             Path path = Paths.get(pathToOutput);
             logger.info("processing category {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
             Path newPath = path.resolve(c.getParent() + ".md");
-            buildTomlOutput(c, newPath, categoryTemplate);
+            buildTomlOutput(c, newPath, categoryTemplate, false);
         });
 
         logger.info("Category description creation complete");
     }
 
 
-    public void buildTomlOutput(JoomlaContent content, Path resolve, Template template)  {
+    public void buildTomlOutput(JoomlaContent content, Path resolve, Template template, Boolean convertBodyToMarkdown)  {
 
         try {
             String tagsQuoted = tagsByName.get(content.getId()).stream()
                     .map(t -> "\"" + t + "\"")
                     .collect(Collectors.joining(", "));
 
+            String body = content.getIntro() + "\n" + content.getBody();
+            body = ensureAllImageUrlsAreCorrect(body);
+            body = urlSorter(body);
+            if (convertBodyToMarkdown) {
+                OptionsBuilder htmlToMarkdownOptionsBuilder = OptionsBuilder.anOptions();
+                Options htmlToMarkdownOptions = htmlToMarkdownOptionsBuilder.withHeadingStyle(HeadingStyle.ATX).withCodeBlockStyle(CodeBlockStyle.FENCED).build();
+                CopyDown htmtToMarkdownConverter = new CopyDown(htmlToMarkdownOptions);
+                body = htmtToMarkdownConverter.convert(body);
+            }
+
             Map<String, Object> root = new HashMap<>();
             root.put("joomlaData", content);
             root.put("tags", tagsQuoted);
-            root.put("body", urlSorter(content.getIntro() + "\n" + content.getBody()));
+            root.put("body", body);
             template.process(root, new BufferedWriter(new FileWriter(resolve.toFile())));
         } catch (Exception e) {
             logger.error("Failed to generate file", e);
@@ -201,8 +209,6 @@ public class JoomlaHugoConverter {
         sqlForArticleLink = sqlForArticleLink.replace("REPLSTR", dbExtension);
 
         Pattern linkPattern = Pattern.compile("index.php.option=com_content.amp.view=article.amp.id=([0-9]*).amp.catid=([0-9]*).amp.Itemid=([0-9]*)");
-
-        body = ensureAllImageUrlsAreCorrect(body);
 
         boolean foundSomething = true;
         while (foundSomething) {
