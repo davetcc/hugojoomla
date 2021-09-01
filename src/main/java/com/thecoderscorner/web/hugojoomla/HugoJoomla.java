@@ -20,6 +20,7 @@ public class HugoJoomla {
             options.addOption("outdir", true, "output directory");
             options.addOption("dbext", true, "database extension");
             options.addOption("buildtags", true, "if true, process tags, otherwise do not process");
+            options.addOption("htmltomarkdown", true, "if true, convert HTML article content to markdown");
 
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
@@ -30,9 +31,15 @@ public class HugoJoomla {
             System.setProperty("category.action", cmd.getOptionValue("cataction", "TOPONLY"));
             System.setProperty("db.ext", cmd.getOptionValue("dbext"));
             System.setProperty("buildtags", cmd.getOptionValue("buildtags", "true"));
+            System.setProperty("htmltomarkdown", cmd.getOptionValue("htmltomarkdown", "true"));
 
             ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("hugoJoomla.xml");
-            ctx.getBean("joomlaHugoConverter", JoomlaHugoConverter.class).performConversion();
+            try {
+                ctx.getBean("joomlaHugoConverter", JoomlaHugoConverter.class).performConversion();
+            } finally {
+                ctx.close();
+            }
+            
         }
         catch(Exception ex) {
             LOGGER.error("Unable to start conversion process.", ex);
