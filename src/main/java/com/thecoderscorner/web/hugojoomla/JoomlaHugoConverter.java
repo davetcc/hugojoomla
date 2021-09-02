@@ -204,7 +204,7 @@ public class JoomlaHugoConverter {
             nastyContentChecker.checkForNastyContent(c);
             Path path = Paths.get(pathToOutput);
             logger.info("processing custom HTML module {}", c.getTitle());
-            Path newPath = path.resolve(c.getCategory());
+            Path newPath = path.resolve("layout/shortcodes");
             newPath.toFile().mkdirs();
             buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), customHtmlModuleTemplate, false);
 
