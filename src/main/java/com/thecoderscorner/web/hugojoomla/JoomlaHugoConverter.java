@@ -15,10 +15,12 @@ import io.github.furstenheim.HeadingStyle;
 import io.github.furstenheim.CodeBlockStyle;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +198,7 @@ public class JoomlaHugoConverter {
             root.put("joomlaData", content);
             root.put("tags", tagsQuoted);
             root.put("body", body);
-            template.process(root, new BufferedWriter(new FileWriter(resolve.toFile())));
+            template.process(root, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(resolve.toFile(), true), StandardCharsets.UTF_8)));
         } catch (Exception e) {
             logger.error("Failed to generate file", e);
         }
