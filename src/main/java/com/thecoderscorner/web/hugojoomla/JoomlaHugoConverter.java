@@ -124,7 +124,7 @@ public class JoomlaHugoConverter {
                 nastyContentChecker.checkForNastyContent(c);
                 Path path = Paths.get(pathToOutput);
                 logger.info("processing {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
-                Path newPath = path.resolve(c.getCategory());
+                Path newPath = path.resolve("content/" + c.getCategory());
                 newPath.toFile().mkdirs();
                 buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), this.contentTemplate, this.htmltomarkdown);
             });
@@ -172,7 +172,7 @@ public class JoomlaHugoConverter {
             nastyContentChecker.checkForNastyContent(c);
             Path path = Paths.get(pathToOutput);
             logger.info("processing category {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
-            Path newPath = path.resolve(c.getParent() + ".md");
+            Path newPath = path.resolve("content/" + c.getParent() + ".md");
             buildTomlOutput(c, newPath, categoryTemplate, false);
         });
 
