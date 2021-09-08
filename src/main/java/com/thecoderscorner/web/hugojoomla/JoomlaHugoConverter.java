@@ -208,7 +208,7 @@ public class JoomlaHugoConverter {
             logger.info("processing custom HTML module {}", c.getTitle());
             Path newPath = path.resolve("layout/shortcodes");
             newPath.toFile().mkdirs();
-            buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), customHtmlModuleTemplate, false);
+            buildTomlOutput(c, newPath.resolve(this.sanitizeFilename(c.getAlias()) + ".md"), customHtmlModuleTemplate, false);
 
             
         });
@@ -283,5 +283,15 @@ public class JoomlaHugoConverter {
             }
         }
         return body;
+    }
+
+    private String sanitizeFilename(String inputName) {
+        //Replace all non a-zA-Z0-9-_ chars, convert string to lowercase, remove trailing _ after conversion
+        StringBuilder sb = new StringBuilder(inputName.replaceAll("[^a-zA-Z0-9-_]", "_").toLowerCase());
+        while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '_') {
+            sb.setLength(sb.length() - 1);
+        }
+        
+        return sb.toString();
     }
 }
