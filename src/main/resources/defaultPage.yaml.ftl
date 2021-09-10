@@ -7,7 +7,7 @@ type: "post"
 date: "${joomlaData.modifiedDateAsText}"
 author:  "${joomlaData.author}"
 <#if joomlaData.introImage.isImagePresent()>
-banner = "${joomlaData.introImage.url}"
+banner: "${joomlaData.introImage.url}"
 </#if>
 menu: "${joomlaData.parent}"
 ---
