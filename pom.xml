@@ -6,7 +6,7 @@
 
     <groupId>com.thecoderscorner.web.</groupId>
     <artifactId>hugo-joomla</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.4</version>
     <name>Hugo-Joomla</name>
     <description>Hugo generation from Joomla database</description>
 
