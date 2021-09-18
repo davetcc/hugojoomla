@@ -32,7 +32,7 @@ In addition all content is currently converted as type "blog".
 
 ## Running the conversion utility
 
-Check that you have Java 8 installed. You can check your java version using the following command:
+Check that you have at least Java 8 installed. You can check your java version using the following command:
 
     java --version
 
@@ -40,6 +40,8 @@ The above command should return something like:
 
     java version "1.8.0_102"
     Java(TM) SE Runtime Environment (build 1.8.0_102-b14)
+
+I have tested that the process at least runs on Java versions through to 16.
 
 You can use the packaged version that is available from the releases page. 
 [releases page](https://github.com/davetcc/hugojoomla/releases)
