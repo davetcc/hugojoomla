@@ -5,11 +5,15 @@ description: "${joomlaData.metadesc}"
 tags: [ ${tags} ]
 type: "post"
 date: "${joomlaData.modifiedDateAsText}"
+<#if joomlaData.author??>
 author:  "${joomlaData.author}"
+</#if>
 <#if joomlaData.introImage.isImagePresent()>
 banner: "${joomlaData.introImage.url}"
 </#if>
+<#if joomlaData.parent??>
 menu: "${joomlaData.parent}"
+</#if>
 ---
 <#if joomlaData.bodyImage.isImagePresent() >
     <img class="${joomlaData.bodyImage.htmlClass} titleimg" alt="${joomlaData.bodyImage.alt}" src="${joomlaData.bodyImage.url}"/>
