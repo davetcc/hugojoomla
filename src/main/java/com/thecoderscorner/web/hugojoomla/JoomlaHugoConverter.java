@@ -118,7 +118,7 @@ public class JoomlaHugoConverter {
                     resultSet.getString("catAlias")
             ));
 
-            content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
+            content.stream().forEach(c-> {
                 nastyContentChecker.checkForNastyContent(c);
                 Path path = Paths.get(pathToOutput);
                 logger.info("processing {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
@@ -126,10 +126,6 @@ public class JoomlaHugoConverter {
                 newPath.toFile().mkdirs();
                 buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), this.contentTemplate, this.htmltomarkdown);
             });
-
-            content.stream().filter(c-> !c.isPublished()).forEach(
-                    c->logger.info("Skipping deleted content {} {}", c.getTitle(), c.getId())
-            );
 
             performCategoryConversion();
             performCustomHtmlModulesConversion();

@@ -14,6 +14,9 @@ banner: "${joomlaData.introImage.url}"
 <#if joomlaData.parent??>
 menu: "${joomlaData.parent}"
 </#if>
+<#if !joomlaData.isPublished()>
+draft: true
+</#if>
 ---
 <#if joomlaData.bodyImage.isImagePresent() >
     <img class="${joomlaData.bodyImage.htmlClass} titleimg" alt="${joomlaData.bodyImage.alt}" src="${joomlaData.bodyImage.url}"/>

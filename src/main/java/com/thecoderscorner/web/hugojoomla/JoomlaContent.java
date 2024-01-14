@@ -119,7 +119,7 @@ public class JoomlaContent {
     }
 
     public boolean isPublished() {
-        return status == 0 || status == 1;
+        return status == 1;
     }
 
     public String getParent() {
