@@ -4,7 +4,8 @@ title: "${joomlaData.title}"
 description: "${joomlaData.metadesc}"
 tags: [ ${tags} ]
 type: "post"
-date: "${joomlaData.modifiedDateAsText}"
+date: "${joomlaData.createdDateAsText}"
+lastmod: "${joomlaData.modifiedDateAsText}"
 <#if joomlaData.author??>
 author:  "${joomlaData.author}"
 </#if>
