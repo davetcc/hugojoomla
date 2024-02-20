@@ -98,10 +98,8 @@ public class JoomlaHugoConverter {
                     "select C.id as id, U.username as username, C.created as created, C.modified as modified, C.introtext as intro, " +
                     "       C.`fulltext` as full, D.path as path, C.title as title, C.alias as alias,\n" +
                     "       C.metadesc as metadesc, C.images as images, C.state as state, D.alias as catAlias \n" +
-                    "from REPLSTR_content C, REPLSTR_users U, REPLSTR_categories D\n" +
-                    "where C.created_by = U.id\n" +
-                    "  and D.id = C.catid\n" +
-                    "  and D.path <> 'uncategorised'\n";
+                    "from REPLSTR_content C LEFT JOIN REPLSTR_users U ON (U.id = C.created_by) LEFT JOIN REPLSTR_categories D ON (D.id = C.catid)\n" +
+                    "where D.path <> 'uncategorised'\n";
             articleQuery = articleQuery.replace("REPLSTR", dbExtension);
 
             List<JoomlaContent> content = template.query(articleQuery, (resultSet, i) -> new JoomlaContent(
@@ -120,7 +118,7 @@ public class JoomlaHugoConverter {
                     resultSet.getString("catAlias")
             ));
 
-            content.stream().filter(JoomlaContent::isPublished).forEach(c-> {
+            content.stream().forEach(c-> {
                 nastyContentChecker.checkForNastyContent(c);
                 Path path = Paths.get(pathToOutput);
                 logger.info("processing {} {} {}", c.getTitle(), c.getCategory(), c.getAlias());
@@ -128,10 +126,6 @@ public class JoomlaHugoConverter {
                 newPath.toFile().mkdirs();
                 buildTomlOutput(c, newPath.resolve(c.getAlias() + ".md"), this.contentTemplate, this.htmltomarkdown);
             });
-
-            content.stream().filter(c-> !c.isPublished()).forEach(
-                    c->logger.info("Skipping deleted content {} {}", c.getTitle(), c.getId())
-            );
 
             performCategoryConversion();
             performCustomHtmlModulesConversion();
@@ -148,8 +142,7 @@ public class JoomlaHugoConverter {
                 "SELECT C.id AS id, C.alias AS alias, C.description AS description, C.path AS path,\n" +
                 "       C.created_time AS created_time, C.modified_time AS modified_time, C.published AS published, C.description description, C.title AS title,\n" +
                 "       C.metadesc AS metadesc, P.alias AS parent\n" +
-                "FROM REPLSTR_categories C, REPLSTR_categories P\n" +
-                "WHERE C.parent_id = P.id\n";
+                "FROM REPLSTR_categories C LEFT JOIN REPLSTR_categories P ON (P.id = C.parent_id)\n";
         sqlCat = sqlCat.replace("REPLSTR", dbExtension);
         List<JoomlaContent> content = template.query(sqlCat, (resultSet, i) -> new JoomlaContent(
                 resultSet.getInt("id"),
@@ -245,8 +238,8 @@ public class JoomlaHugoConverter {
 
     private String urlSorter(String body) {
         String sqlForArticleLink = "SELECT C.alias AS alias, D.path AS path\n" +
-                "FROM REPLSTR_content C, REPLSTR_categories D\n" +
-                "WHERE C.id=? AND C.catid = D.id\n";
+                "FROM REPLSTR_content C LEFT JOIN REPLSTR_categories D ON c.catid = D.id\n" +
+                "WHERE C.id=?\n";
         sqlForArticleLink = sqlForArticleLink.replace("REPLSTR", dbExtension);
 
         Pattern linkPattern = Pattern.compile("index.php.option=com_content.amp.view=article.amp.id=([0-9]*).amp.catid=([0-9]*).amp.Itemid=([0-9]*)");
